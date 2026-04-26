@@ -93,12 +93,13 @@
         const VOXEL_IDS = { AIR: 0, GRASS: 4, DIRT: 2, STONE: 28, SAND: 5, WATER: 126, SNOW: 8, GOLD: 42, COAL: 40, IRON: 41, DIAMOND: 45, MOONSTONE: 465, MAPLE_LOG: 9, MAPLE_LEAVES: 102, BEDROCK: 147 };
         const COLORS = { [VOXEL_IDS.GRASS]: [0.33, 0.67, 0.33], [VOXEL_IDS.DIRT]: [0.54, 0.35, 0.17], [VOXEL_IDS.STONE]: [0.45, 0.45, 0.45], [VOXEL_IDS.SAND]: [0.92, 0.85, 0.6], [VOXEL_IDS.WATER]: [0.25, 0.45, 0.9], [VOXEL_IDS.SNOW]: [1.0, 1.0, 1.0], [VOXEL_IDS.GOLD]: [1.0, 0.84, 0.0], [VOXEL_IDS.COAL]: [0.2, 0.2, 0.2], [VOXEL_IDS.IRON]: [0.82, 0.82, 0.82], [VOXEL_IDS.DIAMOND]: [0.33, 1.0, 1.0], [VOXEL_IDS.MOONSTONE]: [1.0, 0.4, 1.0], [VOXEL_IDS.MAPLE_LOG]: [0.29, 0.18, 0.09], [VOXEL_IDS.MAPLE_LEAVES]: [1.0, 0.33, 0.0], [VOXEL_IDS.BEDROCK]: [0.1, 0.1, 0.1] };
         
+        // Revised Ore Configuration based on new height instructions
         const ORE_CONFIG = [
-            { id: VOXEL_IDS.COAL, min: 40, max: 200, threshold: 0.65 },
-            { id: VOXEL_IDS.IRON, min: 20, max: 160, threshold: 0.70 },
-            { id: VOXEL_IDS.GOLD, min: 10, max: 70, threshold: 0.78 },
-            { id: VOXEL_IDS.DIAMOND, min: 0, max: 40, threshold: 0.82 },
-            { id: VOXEL_IDS.MOONSTONE, min: 0, max: 30, threshold: 0.85 }
+            { id: VOXEL_IDS.COAL, min: 40, max: 200, threshold: 0.65, offset: 0 },
+            { id: VOXEL_IDS.IRON, min: 10, max: 250, threshold: 0.72, offset: 123.45 },
+            { id: VOXEL_IDS.GOLD, min: 0, max: 40, threshold: 0.80, offset: 456.78 }, // Limited to 0-40, slightly rarer threshold
+            { id: VOXEL_IDS.DIAMOND, min: 0, max: 20, threshold: 0.83, offset: 999.99 }, // Limited to 0-20
+            { id: VOXEL_IDS.MOONSTONE, min: 0, max: 20, threshold: 0.86, offset: 777.77 } // Limited to 0-20
         ];
 
         let worldData = null, worldWidth = 64, worldDepth = 64, worldHeight = 256;
@@ -200,7 +201,10 @@
                                     let id = VOXEL_IDS.STONE;
                                     for(const ore of ORE_CONFIG) {
                                         if(y >= ore.min && y <= ore.max) {
-                                            if(noise3D(x * 0.2, y * 0.2, z * 0.2) > ore.threshold && rnd3D(x, y, z) < 0.2) {
+                                            const ox = x * 0.2 + ore.offset;
+                                            const oy = y * 0.2 + ore.offset;
+                                            const oz = z * 0.2 + ore.offset;
+                                            if(noise3D(ox, oy, oz) > ore.threshold && rnd3D(x, y, z) < 0.25) {
                                                 id = ore.id; break;
                                             }
                                         }

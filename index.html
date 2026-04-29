@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voxel Terrain - Advanced Parameters</title>
+    <title>Voxel Terrain - 32x32x32 Dice Chunk Export</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { margin: 0; overflow: hidden; background-color: #0f172a; font-family: sans-serif; }
@@ -12,69 +12,99 @@
             position: absolute; top: 20px; left: 20px;
             background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px);
             border-radius: 16px; padding: 20px; color: #f1f5f9;
-            border: 1px solid rgba(255, 255, 255, 0.1); width: 340px; z-index: 10;
+            border: 1px solid rgba(255, 255, 255, 0.1); width: 360px; z-index: 10;
             max-height: 90vh; overflow-y: auto;
         }
-        input[type="number"], input[type="range"] {
+        input[type="text"], input[type="number"], input[type="range"], select {
             background: #1e293b; border: 1px solid #334155;
-            padding: 4px 8px; border-radius: 6px; font-size: 13px; color: white;
+            padding: 8px 12px; border-radius: 8px; font-size: 13px; color: white;
             width: 100%;
         }
         .progress-bar { height: 4px; background: #334155; border-radius: 2px; margin-top: 10px; display: none; }
         .progress-fill { height: 100%; background: #3b82f6; width: 0%; transition: width 0.1s linear; }
-        label { font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        label { font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; display: flex; justify-content: space-between; }
         .param-group { background: rgba(30, 41, 59, 0.5); padding: 12px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .toggle-label { display: flex; align-items: center; cursor: pointer; font-size: 13px; gap: 8px; }
+        .toggle-input { width: 16px !important; height: 16px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="ui-panel">
-        <h1 class="text-lg font-bold mb-4 flex items-center gap-2"><span>🛠️</span> Terrain Architect</h1>
+        <h1 class="text-lg font-bold mb-4 flex items-center gap-2"><span>🛠️</span> Terrain Architect Pro</h1>
         
         <div class="space-y-4">
-            <!-- World Settings -->
             <div class="param-group space-y-3">
                 <div class="flex flex-col gap-1">
-                    <label>World Size</label>
-                    <input type="number" id="inputSize" value="64">
+                    <label>World Size (Preview)</label>
+                    <select id="inputSize">
+                        <option value="64" selected>64x64</option>
+                        <option value="128">128x128</option>
+                        <option value="192">192x192</option>
+                        <option value="256">256x256</option>
+                        <option value="320">320x320</option>
+                        <option value="512">512x512</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label>Export Unit Size (Per File)</label>
+                    <select id="inputExportUnit">
+                        <option value="32">32x32 (Small)</option>
+                        <option value="64" selected>64x64 (Standard)</option>
+                        <option value="128">128x128 (Large)</option>
+                        <option value="256">256x256 (Huge)</option>
+                    </select>
                 </div>
             </div>
 
-            <!-- Terrain Settings -->
             <div class="param-group space-y-3">
                 <div class="flex flex-col gap-1">
-                    <label>Base Height Multiply</label>
-                    <input type="number" id="inputMH" value="120">
+                    <label>Base Height <span id="valMH">120</span></label>
+                    <input type="range" id="inputMH" min="10" max="240" value="120">
                 </div>
                 <div class="flex flex-col gap-1">
-                    <label>Noise Scale (Detail)</label>
+                    <label>Water Level <span id="valWL">100</span></label>
+                    <input type="range" id="inputWL" min="10" max="200" value="100">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label>Noise Scale <span id="valNS">50</span></label>
                     <input type="range" id="inputNoiseScale" min="1" max="200" value="50">
                 </div>
+                <label class="toggle-label">
+                    <input type="checkbox" id="inputIsland" class="toggle-input" checked> Island Mode
+                </label>
+            </div>
+
+            <div class="param-group space-y-3">
                 <div class="flex flex-col gap-1">
-                    <label>Height Offset</label>
-                    <input type="number" id="inputBaseY" value="60">
+                    <label>Detail (Octaves) <span id="valOct">4</span></label>
+                    <input type="range" id="inputOct" min="1" max="8" value="4">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label>Cave Density <span id="valCave">65</span></label>
+                    <input type="range" id="inputCave" min="50" max="95" value="65">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label>Tree Probability (%) <span id="valTree">3</span></label>
+                    <input type="range" id="inputTree" min="0" max="10" value="3">
                 </div>
             </div>
 
-            <!-- Cave Settings -->
             <div class="param-group space-y-3">
                 <div class="flex flex-col gap-1">
-                    <label>Cave Frequency (Threshold)</label>
-                    <input type="range" id="inputCaveThres" min="0" max="100" value="75">
+                    <label>Filename Base</label>
+                    <input type="text" id="exportName" value="world_map">
                 </div>
-                <div class="flex flex-col gap-1">
-                    <label>Cave Size (Scale)</label>
-                    <input type="range" id="inputCaveScale" min="1" max="200" value="120">
-                </div>
+                <p id="exportHint" class="text-[10px] text-slate-400 italic">Chunks are always 32x32x32 inside files.</p>
             </div>
 
             <button id="generateBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-blue-900/20">REBUILD WORLD</button>
-            <button id="exportBtn" class="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-xl font-semibold text-sm transition-all">📥 DOWNLOAD .BLOXDSCHEM</button>
+            <button id="exportBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl font-semibold text-sm transition-all">📥 EXPORT FILES</button>
             
             <div id="progressContainer" class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
-            <div id="stats" class="text-[10px] text-slate-500 text-center mt-2 font-mono uppercase tracking-widest">Awaiting Command</div>
+            <div id="stats" class="text-[10px] text-slate-500 text-center mt-2 font-mono uppercase tracking-widest">Ready</div>
         </div>
     </div>
 
@@ -88,146 +118,124 @@
 
         let scene, camera, renderer, controls, mesh;
         let isGenerating = false;
-        const WATER_LEVEL = 100, CHUNK_SIZE = 32;
+        let worldData = null, worldWidth = 64, worldDepth = 64, worldHeight = 256;
 
         const VOXEL_IDS = { AIR: 0, GRASS: 4, DIRT: 2, STONE: 28, SAND: 5, WATER: 126, SNOW: 8, GOLD: 42, COAL: 40, IRON: 41, DIAMOND: 45, MOONSTONE: 465, MAPLE_LOG: 9, MAPLE_LEAVES: 102, BEDROCK: 147 };
         const COLORS = { [VOXEL_IDS.GRASS]: [0.33, 0.67, 0.33], [VOXEL_IDS.DIRT]: [0.54, 0.35, 0.17], [VOXEL_IDS.STONE]: [0.45, 0.45, 0.45], [VOXEL_IDS.SAND]: [0.92, 0.85, 0.6], [VOXEL_IDS.WATER]: [0.25, 0.45, 0.9], [VOXEL_IDS.SNOW]: [1.0, 1.0, 1.0], [VOXEL_IDS.GOLD]: [1.0, 0.84, 0.0], [VOXEL_IDS.COAL]: [0.2, 0.2, 0.2], [VOXEL_IDS.IRON]: [0.82, 0.82, 0.82], [VOXEL_IDS.DIAMOND]: [0.33, 1.0, 1.0], [VOXEL_IDS.MOONSTONE]: [1.0, 0.4, 1.0], [VOXEL_IDS.MAPLE_LOG]: [0.29, 0.18, 0.09], [VOXEL_IDS.MAPLE_LEAVES]: [1.0, 0.33, 0.0], [VOXEL_IDS.BEDROCK]: [0.1, 0.1, 0.1] };
         
-        // Revised Ore Configuration based on new height instructions
-        const ORE_CONFIG = [
-            { id: VOXEL_IDS.COAL, min: 40, max: 200, threshold: 0.65, offset: 0 },
-            { id: VOXEL_IDS.IRON, min: 10, max: 250, threshold: 0.72, offset: 123.45 },
-            { id: VOXEL_IDS.GOLD, min: 0, max: 40, threshold: 0.80, offset: 456.78 }, // Limited to 0-40, slightly rarer threshold
-            { id: VOXEL_IDS.DIAMOND, min: 0, max: 20, threshold: 0.83, offset: 999.99 }, // Limited to 0-20
-            { id: VOXEL_IDS.MOONSTONE, min: 0, max: 20, threshold: 0.86, offset: 777.77 } // Limited to 0-20
-        ];
-
-        let worldData = null, worldWidth = 64, worldDepth = 64, worldHeight = 256;
-
         init();
         animate();
 
         function init() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x0f172a);
-            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 5000);
-            camera.position.set(160, 160, 160);
+            scene = new THREE.Scene(); scene.background = new THREE.Color(0x0f172a);
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
+            camera.position.set(200, 200, 200);
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setPixelRatio(window.devicePixelRatio);
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
             controls = new OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
-            
             scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-            const sun = new THREE.DirectionalLight(0xffffff, 1.4);
-            sun.position.set(100, 250, 100);
-            scene.add(sun);
+            const sun = new THREE.DirectionalLight(0xffffff, 1.4); sun.position.set(100, 250, 100); scene.add(sun);
 
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            });
+            const bindVal = (id, target) => {
+                const el = document.getElementById(id); const out = document.getElementById(target);
+                if (el && out) el.addEventListener('input', () => out.innerText = el.value);
+            };
+            bindVal('inputMH', 'valMH'); bindVal('inputWL', 'valWL'); bindVal('inputNoiseScale', 'valNS');
+            bindVal('inputOct', 'valOct'); bindVal('inputCave', 'valCave'); bindVal('inputTree', 'valTree');
             document.getElementById('generateBtn').onclick = startGeneration;
-            document.getElementById('exportBtn').onclick = exportSchematic;
+            document.getElementById('exportBtn').onclick = exportInUnits;
             startGeneration();
         }
 
-        // Noise Engine
+        // Noise functions
         function rnd3D(x, y, z) { const s = Math.sin(x * 12.9898 + y * 45.123 + z * 78.233) * 43758.5453; return s - Math.floor(s); }
+        function lerp(a, b, t) { return a + (b - a) * t; }
+        function fade(t) { return t * t * t * (t * (t * 6 - 15) + 10); }
         function noise3D(x, y, z) {
             const X = Math.floor(x), Y = Math.floor(y), Z = Math.floor(z), fx = x - X, fy = y - Y, fz = z - Z;
-            const u = fx * fx * (3 - 2 * fx), v = fy * fy * (3 - 2 * fy), w = fz * fz * (3 - 2 * fz);
+            const u = fade(fx), v = fade(fy), w = fade(fz);
             const v000 = rnd3D(X, Y, Z), v100 = rnd3D(X + 1, Y, Z), v010 = rnd3D(X, Y + 1, Z), v110 = rnd3D(X + 1, Y + 1, Z);
             const v001 = rnd3D(X, Y, Z + 1), v101 = rnd3D(X + 1, Y, Z + 1), v011 = rnd3D(X, Y + 1, Z + 1), v111 = rnd3D(X + 1, Y + 1, Z + 1);
-            return v000*(1-u)*(1-v)*(1-w) + v100*u*(1-v)*(1-w) + v010*(1-u)*v*(1-w) + v110*u*v*(1-w) + v001*(1-u)*(1-v)*w + v101*u*(1-v)*w + v011*(1-u)*v*w + v111*u*v*w;
+            return lerp(lerp(lerp(v000, v100, u), lerp(v010, v110, u), v), lerp(lerp(v001, v101, u), lerp(v011, v111, u), v), w);
+        }
+        function fractalNoise(x, y, z, octaves) {
+            let total = 0, freq = 1, amp = 1, maxAmp = 0;
+            for(let i=0; i<octaves; i++) { total += noise3D(x * freq, y * freq, z * freq) * amp; maxAmp += amp; amp *= 0.5; freq *= 2; }
+            return total / maxAmp;
         }
 
         function getVoxel(x, y, z) { if (x<0||x>=worldWidth||y<0||y>=worldHeight||z<0||z>=worldDepth) return 0; return worldData[x + y*worldWidth + z*worldWidth*worldHeight]; }
         function setVoxel(x, y, z, id) { if (x<0||x>=worldWidth||y<0||y>=worldHeight||z<0||z>=worldDepth) return; worldData[x + y*worldWidth + z*worldWidth*worldHeight] = id; }
-        
-        function spawnMapleTree(x, y, z) {
-            const trunkHeight = 4 + Math.floor(rnd3D(x, y, z) * 3);
-            for (let i = 0; i < trunkHeight; i++) if (getVoxel(x, y + i, z) === 0) setVoxel(x, y + i, z, VOXEL_IDS.MAPLE_LOG);
-            const leafBaseY = y + trunkHeight - 2;
-            for (let ly = -2; ly <= 2; ly++) {
-                const r = ly === 2 ? 1 : (ly >= 0 ? 2 : 3);
-                for (let lx = -r; lx <= r; lx++) for (let lz = -r; lz <= r; lz++) {
-                    if (lx*lx + lz*lz <= r*r + 0.5 && getVoxel(x + lx, leafBaseY + ly, z + lz) === 0) setVoxel(x + lx, leafBaseY + ly, z + lz, VOXEL_IDS.MAPLE_LEAVES);
-                }
-            }
-        }
 
         function startGeneration() {
-            if (isGenerating) return;
-            isGenerating = true;
-            const size = parseInt(document.getElementById('inputSize').value) || 64;
-            const mh = parseFloat(document.getElementById('inputMH').value) || 120;
+            if (isGenerating) return; isGenerating = true;
+            const size = parseInt(document.getElementById('inputSize').value);
+            const mh = parseFloat(document.getElementById('inputMH').value);
+            const wl = parseFloat(document.getElementById('inputWL').value);
             const nScale = parseInt(document.getElementById('inputNoiseScale').value) / 1000;
-            const baseY = parseInt(document.getElementById('inputBaseY').value);
-            const caveThres = 1.0 - (parseInt(document.getElementById('inputCaveThres').value) / 250);
-            const caveScale = parseInt(document.getElementById('inputCaveScale').value) / 1000;
-
-            worldWidth = size; worldDepth = size;
-            worldData = new Uint16Array(worldWidth * worldHeight * worldDepth);
+            const octaves = parseInt(document.getElementById('inputOct').value);
+            const island = document.getElementById('inputIsland').checked;
+            const caveThresh = parseInt(document.getElementById('inputCave').value) / 100;
+            const treeProb = parseInt(document.getElementById('inputTree').value) / 100;
             
+            worldWidth = size; worldDepth = size; worldHeight = 256;
+            worldData = new Uint16Array(worldWidth * worldHeight * worldDepth);
             document.getElementById('progressContainer').style.display = 'block';
             
             let x = 0;
             const step = () => {
-                for(let i=0; i<8 && x < worldWidth; i++, x++){
+                // Perform generation in chunks to keep UI responsive
+                const chunkCount = worldWidth > 128 ? 4 : 8;
+                for(let i=0; i<chunkCount && x < worldWidth; i++, x++){
                     for(let z=0; z<worldDepth; z++){
-                        const noiseVal = noise3D(x * nScale, 0, z * nScale) * 0.7 + noise3D(x * nScale * 2, 0, z * nScale * 2) * 0.3;
-                        const h = Math.floor(baseY + noiseVal * mh);
-                        
+                        let n = fractalNoise(x * nScale, 0, z * nScale, octaves);
+                        if(island) {
+                            const d = Math.sqrt(Math.pow((x - worldWidth/2) / (worldWidth/2), 2) + Math.pow((z - worldDepth/2) / (worldDepth/2), 2));
+                            n *= Math.max(0, 1 - d * 1.5);
+                        }
+                        const h = Math.floor(40 + n * mh);
                         setVoxel(x, 0, z, VOXEL_IDS.BEDROCK);
-                        for(let y=1; y<=Math.max(h, WATER_LEVEL); y++){
+                        
+                        // 地形生成
+                        for(let y=1; y<=Math.max(h, wl); y++){
                             if(y<=h){
-                                // Cave Logic
-                                const caveNoise = noise3D(x * caveScale, y * caveScale, z * caveScale);
-                                if (caveNoise > caveThres && y < h - 4 && y > 3) {
-                                    setVoxel(x, y, z, VOXEL_IDS.AIR);
-                                    continue;
-                                }
+                                if (fractalNoise(x * 0.1, y * 0.1, z * 0.1, 2) > caveThresh && y < h - 5 && y > 3) continue;
+                                if(y===h) setVoxel(x, y, z, h > wl + 70 ? VOXEL_IDS.SNOW : (h <= wl + 5 ? VOXEL_IDS.SAND : VOXEL_IDS.GRASS));
+                                else if(y > h-3) setVoxel(x, y, z, h <= wl + 5 ? VOXEL_IDS.SAND : VOXEL_IDS.DIRT);
+                                else setVoxel(x, y, z, VOXEL_IDS.STONE);
+                            } else if(y <= wl) setVoxel(x, y, z, VOXEL_IDS.WATER);
+                        }
 
-                                if(y===h) {
-                                    let surface = VOXEL_IDS.GRASS;
-                                    if (h > WATER_LEVEL + 70) surface = VOXEL_IDS.SNOW;
-                                    else if (h <= WATER_LEVEL + 5) surface = VOXEL_IDS.SAND;
-                                    setVoxel(x, y, z, surface);
-                                } else if(y > h-3) {
-                                    setVoxel(x, y, z, h <= WATER_LEVEL + 5 ? VOXEL_IDS.SAND : VOXEL_IDS.DIRT);
-                                } else {
-                                    let id = VOXEL_IDS.STONE;
-                                    for(const ore of ORE_CONFIG) {
-                                        if(y >= ore.min && y <= ore.max) {
-                                            const ox = x * 0.2 + ore.offset;
-                                            const oy = y * 0.2 + ore.offset;
-                                            const oz = z * 0.2 + ore.offset;
-                                            if(noise3D(ox, oy, oz) > ore.threshold && rnd3D(x, y, z) < 0.25) {
-                                                id = ore.id; break;
+                        // 木の生成 (改良版もこもこ葉っぱ)
+                        if (h > wl + 5 && h < worldHeight - 15 && Math.random() < treeProb) {
+                            const trunkH = 5 + Math.floor(Math.random() * 3);
+                            for(let th=1; th<=trunkH; th++) setVoxel(x, h + th, z, VOXEL_IDS.MAPLE_LOG);
+                            
+                            for(let ly = -2; ly <= 4; ly++) {
+                                let radius = 2.5;
+                                if (ly < 0) radius = 1.5;
+                                else if (ly > 2) radius = 1.5;
+                                
+                                for(let lx = -3; lx <= 3; lx++) {
+                                    for(let lz = -3; lz <= 3; lz++) {
+                                        const dist = Math.sqrt(lx*lx + lz*lz);
+                                        if (dist < radius + (Math.random() * 0.5 - 0.25)) {
+                                            if (getVoxel(x + lx, h + trunkH + ly, z + lz) === VOXEL_IDS.AIR) {
+                                                setVoxel(x + lx, h + trunkH + ly, z + lz, VOXEL_IDS.MAPLE_LEAVES);
                                             }
                                         }
                                     }
-                                    setVoxel(x, y, z, id);
                                 }
-                            } else if(y <= WATER_LEVEL) {
-                                setVoxel(x, y, z, VOXEL_IDS.WATER);
                             }
                         }
                     }
                 }
                 document.getElementById('progressFill').style.width = `${(x/worldWidth)*100}%`;
                 if(x < worldWidth) requestAnimationFrame(step);
-                else {
-                    for(let tx=4; tx<worldWidth-4; tx++) for(let tz=4; tz<worldDepth-4; tz++){
-                        let sy = -1; for(let y=worldHeight-1; y>=0; y--) { if(getVoxel(tx, y, tz) !== 0 && getVoxel(tx, y, tz) !== VOXEL_IDS.WATER) { sy = y; break; } }
-                        if(sy > WATER_LEVEL + 8 && getVoxel(tx, sy, tz) === VOXEL_IDS.GRASS && rnd3D(tx*0.5, sy, tz*0.5) < 0.03) spawnMapleTree(tx, sy+1, tz);
-                    }
-                    buildOptimizedMesh();
-                    isGenerating = false;
-                    document.getElementById('progressContainer').style.display = 'none';
-                }
+                else { buildOptimizedMesh(); isGenerating = false; document.getElementById('progressContainer').style.display = 'none'; }
             };
             step();
         }
@@ -235,87 +243,122 @@
         function buildOptimizedMesh() {
             if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
             const positions = [], normals = [], colors = [], indices = [];
-            let vCount = 0;
-
+            let vCount = 0; const dims = [worldWidth, worldHeight, worldDepth];
             for (let d = 0; d < 6; d++) {
-                const iDir = d < 2 ? 0 : (d < 4 ? 1 : 2);
-                const jDir = (iDir + 1) % 3;
-                const kDir = (iDir + 2) % 3;
-                const dims = [worldWidth, worldHeight, worldDepth];
+                const iDir = d < 2 ? 0 : (d < 4 ? 1 : 2); const jDir = (iDir + 1) % 3, kDir = (iDir + 2) % 3;
                 const isBack = d % 2 === 0;
-
                 for (let i = 0; i < dims[iDir]; i++) {
                     const mask = new Int32Array(dims[jDir] * dims[kDir]);
-                    for (let j = 0; j < dims[jDir]; j++) {
-                        for (let k = 0; k < dims[kDir]; k++) {
-                            const p1 = [0,0,0]; p1[iDir] = i; p1[jDir] = j; p1[kDir] = k;
-                            const p2 = [...p1]; p2[iDir] += isBack ? -1 : 1;
-                            const v1 = getVoxel(...p1);
-                            const v2 = getVoxel(...p2);
-                            if (v1 !== 0 && (v2 === 0 || (v1 !== VOXEL_IDS.WATER && v2 === VOXEL_IDS.WATER))) mask[j + k * dims[jDir]] = v1;
-                        }
+                    for (let j = 0; j < dims[jDir]; j++) for (let k = 0; k < dims[kDir]; k++) {
+                        const p1 = [0,0,0]; p1[iDir] = i; p1[jDir] = j; p1[kDir] = k;
+                        const p2 = [...p1]; p2[iDir] += isBack ? -1 : 1;
+                        const v1 = getVoxel(...p1), v2 = getVoxel(...p2);
+                        if (v1 !== 0 && (v2 === 0 || (v1 !== VOXEL_IDS.WATER && v2 === VOXEL_IDS.WATER))) mask[j + k * dims[jDir]] = v1;
                     }
-
-                    for (let k = 0; k < dims[kDir]; k++) {
-                        for (let j = 0; j < dims[jDir]; j++) {
-                            const type = mask[j + k * dims[jDir]];
-                            if (type === 0) continue;
-                            let w, h;
-                            for (w = 1; j + w < dims[jDir] && mask[j + w + k * dims[jDir]] === type; w++);
-                            outer: for (h = 1; k + h < dims[kDir]; h++) {
-                                for (let mw = 0; mw < w; mw++) if (mask[j + mw + (k + h) * dims[jDir]] !== type) break outer;
-                            }
-                            const p = [0,0,0]; p[iDir] = i + (isBack ? 0 : 1); p[jDir] = j; p[kDir] = k;
-                            const du = [0,0,0]; du[jDir] = w;
-                            const dv = [0,0,0]; dv[kDir] = h;
-                            positions.push(p[0],p[1],p[2], p[0]+du[0],p[1]+du[1],p[2]+du[2], p[0]+du[0]+dv[0],p[1]+du[1]+dv[1],p[2]+du[2]+dv[2], p[0]+dv[0],p[1]+dv[1],p[2]+dv[2]);
-                            const nVec = [0,0,0]; nVec[iDir] = isBack ? -1 : 1;
-                            normals.push(...nVec, ...nVec, ...nVec, ...nVec);
-                            const c = COLORS[type]; colors.push(...c, ...c, ...c, ...c);
-                            if (isBack) indices.push(vCount, vCount + 2, vCount + 1, vCount, vCount + 3, vCount + 2);
-                            else indices.push(vCount, vCount + 1, vCount + 2, vCount, vCount + 2, vCount + 3);
-                            vCount += 4;
-                            for (let l = 0; l < h; l++) for (let m = 0; m < w; m++) mask[j + m + (k + l) * dims[jDir]] = 0;
-                        }
+                    for (let k = 0; k < dims[kDir]; k++) for (let j = 0; j < dims[jDir]; j++) {
+                        const type = mask[j + k * dims[jDir]]; if (type === 0) continue;
+                        let w, h;
+                        for (w = 1; j + w < dims[jDir] && mask[j + w + k * dims[jDir]] === type; w++);
+                        outer: for (h = 1; k + h < dims[kDir]; h++) for (let mw = 0; mw < w; mw++) if (mask[j + mw + (k + h) * dims[jDir]] !== type) break outer;
+                        const p = [0,0,0]; p[iDir] = i + (isBack ? 0 : 1); p[jDir] = j; p[kDir] = k;
+                        const du = [0,0,0]; du[jDir] = w; const dv = [0,0,0]; dv[kDir] = h;
+                        positions.push(p[0],p[1],p[2], p[0]+du[0],p[1]+du[1],p[2]+du[2], p[0]+du[0]+dv[0],p[1]+du[1]+dv[1],p[2]+du[2]+dv[2], p[0]+dv[0],p[1]+dv[1],p[2]+dv[2]);
+                        const nVec = [0,0,0]; nVec[iDir] = isBack ? -1 : 1; normals.push(...nVec, ...nVec, ...nVec, ...nVec);
+                        const c = COLORS[type]; colors.push(...c, ...c, ...c, ...c);
+                        if (isBack) indices.push(vCount, vCount + 2, vCount + 1, vCount, vCount + 3, vCount + 2);
+                        else indices.push(vCount, vCount + 1, vCount + 2, vCount, vCount + 2, vCount + 3);
+                        vCount += 4;
+                        for (let l = 0; l < h; l++) for (let m = 0; m < w; m++) mask[j + m + (k + l) * dims[jDir]] = 0;
                     }
                 }
             }
-
             const geo = new THREE.BufferGeometry();
             geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
             geo.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
             geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
             geo.setIndex(indices);
-            mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, side: THREE.FrontSide }));
+            mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true }));
             scene.add(mesh);
-            document.getElementById('stats').innerText = `QUARTZ: ${indices.length / 3} POLYGONS`;
+            document.getElementById('stats').innerText = `POLYGONS: ${indices.length / 3}`;
         }
 
-        function exportSchematic() {
+        async function exportInUnits() {
+            const baseName = document.getElementById('exportName').value || "world";
+            const exportUnit = parseInt(document.getElementById('inputExportUnit').value);
+            
+            // Calculate how many files to generate based on the current world size and selected unit
+            const filesX = Math.ceil(worldWidth / exportUnit);
+            const filesZ = Math.ceil(worldDepth / exportUnit);
+            
+            for(let fz = 0; fz < filesZ; fz++) {
+                for(let fx = 0; fx < filesX; fx++) {
+                    const startX = fx * exportUnit; const startZ = fz * exportUnit;
+                    
+                    // Note: If worldWidth isn't divisible by unit, we handle it inside generate function
+                    const buffer = generateSchematicBuffer(startX, startZ, exportUnit, exportUnit);
+                    const blob = new Blob([new Uint8Array(buffer)], { type: 'application/octet-stream' });
+                    const a = document.createElement("a");
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `${baseName}_${fx}_${fz}.bloxdschem`;
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                    
+                    // Small delay to prevent browser download blocking
+                    await new Promise(r => setTimeout(r, 500));
+                }
+            }
+        }
+
+        function generateSchematicBuffer(startX, startZ, unitW, unitD) {
             const buffer = [];
             const writeInt = (n) => { let val = (n << 1) ^ (n >> 31); while ((val & ~0x7F) !== 0) { buffer.push((val & 0x7F) | 0x80); val >>>= 7; } buffer.push(val); };
             const writeString = (s) => { const bytes = new TextEncoder().encode(s); writeInt(bytes.length); for (let b of bytes) buffer.push(b); };
             const writeBytes = (b) => { writeInt(b.length); for (let v of b) buffer.push(v); };
             const encodeLEB128 = (v) => { const r = []; while (v >= 128) { r.push((v & 127) | 128); v >>= 7; } r.push(v); return r; };
 
-            buffer.push(0, 0, 0, 0); writeString("Advanced_World"); writeInt(0); writeInt(0); writeInt(0);
-            writeInt(worldWidth); writeInt(worldHeight); writeInt(worldDepth);
-            const cx = Math.ceil(worldWidth/CHUNK_SIZE), cy = Math.ceil(worldHeight/CHUNK_SIZE), cz = Math.ceil(worldDepth/CHUNK_SIZE);
-            writeInt(cx*cy*cz);
-            for(let x=0;x<cx;x++) for(let y=0;y<cy;y++) for(let z=0;z<cz;z++){
-                writeInt(x); writeInt(y); writeInt(z);
-                const bBytes = []; let lastId = -1, count = 0;
-                for(let lx=0;lx<CHUNK_SIZE;lx++) for(let ly=0;ly<CHUNK_SIZE;ly++) for(let lz=0;lz<CHUNK_SIZE;lz++){
-                    const id = getVoxel(x*CHUNK_SIZE+lx, y*CHUNK_SIZE+ly, z*CHUNK_SIZE+lz);
-                    if(id===lastId || lastId===-1) count++;
-                    else { bBytes.push(...encodeLEB128(count), ...encodeLEB128(lastId)); count=1; }
-                    lastId = id;
+            // Header
+            buffer.push(0, 0, 0, 0); 
+            writeString("Dice_Chunk_Export_32x32x32"); 
+            writeInt(0); writeInt(0); writeInt(0); 
+            writeInt(unitW); writeInt(worldHeight); writeInt(unitD);
+
+            const CHUNK_SIZE = 32; 
+            const chunksX = unitW / CHUNK_SIZE; 
+            const chunksY = worldHeight / CHUNK_SIZE; 
+            const chunksZ = unitD / CHUNK_SIZE;
+            
+            writeInt(chunksX * chunksY * chunksZ);
+            
+            for(let cx = 0; cx < chunksX; cx++) {
+                for(let cy = 0; cy < chunksY; cy++) {
+                    for(let cz = 0; cz < chunksZ; cz++) {
+                        writeInt(cx); writeInt(cy); writeInt(cz);
+                        
+                        const bBytes = []; let lastId = -1, count = 0;
+                        const cStartX = startX + (cx * CHUNK_SIZE); 
+                        const cStartY = cy * CHUNK_SIZE;
+                        const cStartZ = startZ + (cz * CHUNK_SIZE);
+
+                        for(let lx=0; lx<CHUNK_SIZE; lx++) {
+                            for(let ly=0; ly<CHUNK_SIZE; ly++) {
+                                for(let lz=0; lz<CHUNK_SIZE; lz++){
+                                    // Fetch voxel from the global world data
+                                    const id = getVoxel(cStartX + lx, cStartY + ly, cStartZ + lz);
+                                    if(id === lastId || lastId === -1) {
+                                        count++;
+                                    } else {
+                                        bBytes.push(...encodeLEB128(count), ...encodeLEB128(lastId));
+                                        count = 1;
+                                    }
+                                    lastId = id;
+                                }
+                            }
+                        }
+                        bBytes.push(...encodeLEB128(count), ...encodeLEB128(lastId));
+                        writeBytes(new Uint8Array(bBytes));
+                    }
                 }
-                bBytes.push(...encodeLEB128(count), ...encodeLEB128(lastId));
-                writeBytes(new Uint8Array(bBytes));
             }
-            writeInt(0);
-            const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([new Uint8Array(buffer)])); a.download = "optimized_advanced.bloxdschem"; a.click();
+            writeInt(0); return buffer;
         }
 
         function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
